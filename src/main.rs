@@ -1,24 +1,9 @@
 use std::{collections::HashSet, vec};
 
-fn print_grid<'a, INNER>(grid: impl IntoIterator<Item = INNER>)
-where
-    INNER: IntoIterator<Item = char>,
-{
+fn print_grid(grid: impl IntoIterator<Item = impl IntoIterator<Item = impl Into<char>>>) {
     for row in grid {
         for cell in row {
-            print!("{}", cell);
-        }
-        println!();
-    }
-}
-
-fn print_grid_trait<'a, INNER>(grid: impl IntoIterator<Item = INNER>)
-where
-    INNER: IntoIterator<Item = char>,
-{
-    for row in grid {
-        for cell in row {
-            print!("{}", cell);
+            print!("{}", cell.into());
         }
         println!();
     }
