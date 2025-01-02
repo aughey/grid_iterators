@@ -1,21 +1,25 @@
+// Traits - A way to teach the compiler how to implement a behavior for a type.
+//        - A way to communicate to the caller what a type should do.
+//        - A way to bound the impact a method will have on a value.
+
 use std::collections::VecDeque;
 
 trait DropQueue<T> {
-    /// Returns true if it had to remove an element to insert the new one.
-    fn insert(&mut self, value: T) -> bool;
+    /// returns Some if it had to remove a value to insert the current value.
+    fn insert(&mut self, value: T) -> Option<T>;
     fn remove(&mut self) -> Option<T>;
 }
 
-/// Teach VecDeque to implement DropQueue.
+/// Teach VecDeque how to behave like a DropQueue
 impl<T> DropQueue<T> for VecDeque<T> {
-    fn insert(&mut self, value: T) -> bool {
+    fn insert(&mut self, value: T) -> Option<T> {
         if self.len() == self.capacity() {
-            self.pop_front();
+            let ret = self.pop_front();
             self.push_back(value);
-            true
+            ret
         } else {
             self.push_back(value);
-            false
+            None
         }
     }
 
@@ -30,22 +34,19 @@ mod tests {
 
     use crate::DropQueue;
 
-    fn test_push_dropqueue<T>(queue: &mut impl DropQueue<T>)
-    where
-        T: Default,
-    {
-        assert!(!queue.insert(T::default()));
-        assert!(!queue.insert(T::default()));
-        assert!(!queue.insert(T::default()));
-        assert!(!queue.insert(T::default()));
-        assert!(!queue.insert(T::default()));
-        assert!(queue.insert(T::default()));
+    fn test_dropqueue(queue: &mut impl DropQueue<i32>) {
+        assert_eq!(queue.insert(1), None);
+        assert_eq!(queue.insert(2), None);
+        assert_eq!(queue.insert(3), None);
+        assert_eq!(queue.insert(4), None);
+        assert_eq!(queue.insert(5), None);
+        assert_eq!(queue.insert(6), Some(1));
     }
 
     #[test]
     fn it_works() {
         let mut queue = VecDeque::<i32>::with_capacity(5);
 
-        test_push_dropqueue(&mut queue);
+        test_dropqueue(&mut queue);
     }
 }
